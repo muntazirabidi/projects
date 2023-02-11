@@ -1,2 +1,2 @@
 # projects
-This reporsitory contains my **Data Science and Machine Learning Projects**.
+This reporsitory contains my **Data Science, Machine Learning, Education/Teaching Projects**.
