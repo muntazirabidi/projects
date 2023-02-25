@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib.patches import Rectangle
+from matplotlib.widgets import Button
 
 # Set up the figure and axis
 fig = plt.figure(figsize=(10, 10))
@@ -84,11 +86,73 @@ def update_particle(frame):
 
     return particle, vector, r_unit_arrow, theta_unit_arrow, angle_text, position_text, curve
 
-ani = animation.FuncAnimation(fig, update_particle, frames=np.linspace(0, 10*np.pi, 1000))
+ani = animation.FuncAnimation(fig, update_particle, frames=np.linspace(0, 10*np.pi, 1000), repeat=True)
+ani._running = True
+# Create the stop/resume button
+stop_button_ax = plt.axes([0.14, 0.78, 0.1, 0.05])
+stop_button = Button(stop_button_ax, 'Stop', color='red', hovercolor='darkred')
+
+# Define the stop button callback function
+def stop(event):
+    ani.event_source.stop()
+    ani._running = False
+    stop_button.label.set_text('Paused')
+    stop_button.color = 'gray'
+    stop_button.hovercolor = 'gray'
+
+# Create the resume button
+resume_button_ax = plt.axes([0.14, 0.72, 0.1, 0.05])
+resume_button = Button(resume_button_ax, 'Resume', color='green', hovercolor='darkgreen')
+
+
+# Define the resume button callback function
+def resume(event):
+    if not ani._running:
+        ani.event_source.start()
+        ani._running = True
+        stop_button.label.set_text('Stop')
+        stop_button.color = 'red'
+        stop_button.hovercolor = 'darkred'
+
+# Create the reset button
+#reset_button_ax = plt.axes([0.14, 0.66, 0.1, 0.05])
+#reset_button = Button(reset_button_ax, 'Reset', color='blue', hovercolor='darkblue')
+
+
+# Define the reset button callback function
+
+# Define the reset button callback function
+def reset(event):
+    global r_unit_arrow, theta_unit_arrow
+    if r_unit_arrow:
+        r_unit_arrow.remove()
+        r_unit_arrow = None
+    if theta_unit_arrow:
+        theta_unit_arrow.remove()
+        theta_unit_arrow = None
+    particle.set_data([], [])
+    vector.set_data([], [])
+    curve.set_data([], [])
+
+
+
+# Connect the stop and resume buttons to their callback functions
+stop_button.on_clicked(stop)
+resume_button.on_clicked(resume)
+#reset_button.on_clicked(reset)
+
+
+# Customize the stop and resume button labels
+stop_button.label.set_fontsize(14)
+stop_button.label.set_fontweight('bold')
+resume_button.label.set_fontsize(14)
+resume_button.label.set_fontweight('bold')
+#reset_button.label.set_fontsize(14)
+#reset_button.label.set_fontweight('bold')
 
 # Show the animation
 plt.show()
 
 # Save the animation as a GIF using Pillow
-#writer = animation.PillowWriter(fps=5)
-#ani.save("particle_spiral.gif", writer=writer)
+writer = animation.PillowWriter(fps=5)
+ani.save("particle_spiral.gif", writer=writer)
